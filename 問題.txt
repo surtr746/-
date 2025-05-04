@@ -21,7 +21,8 @@
 	函式宣告(const className& other)
 	指定需要拷貝的對象做為參考。以例子來說，便是a的參考名為other，且只能讀入	(const)，用&的原因是因為傳參照方便，也能不用，不用的話便是傳值呼叫，需要呼叫	拷貝運算子把a複製給other。
 	在實做檔的寫法中，因為拷貝指派運算子是一個具有回傳型別的運算子，所以應該要寫	作className& className::operator=(const className& other)。
-
+	回傳值之所以是className&而不是className是因為要支援連續指派和語意的構造，
+	回傳參考(*this)所以傳參考。
 
 
 	
