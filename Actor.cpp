@@ -16,8 +16,7 @@ Actor::Actor(double newHp, double slash, double pierce, double blunt,int speedFl
 void Actor::printState() {
 	cheakEmotionPoint();
 	cheakEmotionPoint();
-	cheakMoveCount();
-	cheakLightCount();
+	cheakState();
 	cout << "HP:" << setw(4) << getHp() << ' '
 		<< "emotionalLeval:" << setw(4) << getEmotionalLeval() << ' '
 		<< "resistance:" << setw(4) << getResistance("slash") << setw(4) << getResistance("pierce") << setw(4) << getResistance("blunt") << ' '
@@ -64,43 +63,33 @@ int Actor::getSpeedScope()const {
 int Actor::damageCalculation(string n, int num) {
 	return getResistance(n) * num;
 }
-void  Actor::cheakLightCount() {
+void  Actor::cheakState() {
 	int num = getEmotionalLeval();
-	if (num == 0)
+	if (num == 0) {
 		lightCount = 4;
-	if (num == 1)
+		moveCount = 1;
+	}
+	if (num == 1) {
 		lightCount = 5;
-	if (num == 2)
+		moveCount = 1;
+	}
+	if (num == 2) {
 		lightCount = 6;
-	if (num == 3)
-		lightCount = 7;
-	if (num == 4)
-		lightCount = 8;
-	if (num == 5)
-		lightCount = 10;
-}
-void  Actor::cheakMoveCount() {
-	int num = getEmotionalLeval();
-	if (num == 0)
-		moveCount = 1;
-	if (num == 1)
-		moveCount = 1;
-	if (num == 2)
 		moveCount = 2;
-	if (num == 3)
-		moveCount = 2;
-	if (num == 4)
-		moveCount = 3;
-	if (num == 5)
-		moveCount = 4;
-}
-void  Actor::cheakSpeedRage() {
-	int num = getEmotionalLeval();
+	}
 	if (num == 3) {
+		lightCount = 7;
+		moveCount = 2;
 		speedScope[0] += 1;
 		speedScope[1] += 1;
 	}
+	if (num == 4) {
+		lightCount = 8;
+		moveCount = 3;
+	}
 	if (num == 5) {
+		lightCount = 10;
+		moveCount = 4;
 		speedScope[0] += 1;
 		speedScope[1] += 1;
 	}

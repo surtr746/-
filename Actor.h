@@ -24,8 +24,6 @@ public:
 	double getResistance(string)const;
 	int damageCalculation(string, int);
 	void cheakEmotionPoint();
-	void cheakLightCount();
-	void cheakMoveCount();
-	void cheakSpeedRage();
+	void cheakState();
 };
 #endif

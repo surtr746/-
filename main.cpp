@@ -37,4 +37,8 @@ int main() {
 	for (int i = 0; i < 9; i++) {
 		player.printCard(i,1);
 	}
+	enemy.printState();
+	for (int i = 0; i < 9; i++) {
+		enemy.printCard(i, 1);
+	}
 }

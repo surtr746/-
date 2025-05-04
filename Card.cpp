@@ -71,7 +71,7 @@ void Card::printCard() {
 }
 int Card::randNum(int floor,int ceiling) {
 	int num=0;
-	num = rand() % (ceiling - floor);
+	num = rand() % (ceiling - floor+1);
 	return num + floor;
 }
 int Card::getTypeCount() const{
