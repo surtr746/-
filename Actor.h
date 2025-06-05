@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #ifndef ACTOR_H
 #define ACTOR_H
 #include"card.h"
@@ -13,8 +12,8 @@ private:
 	int moveCount = 1;
 	int speedScope[2] = { 0 };
 	Card card[9];
-	vector<int> hand = { 0,0,0,0,0,0,0,0,0 };//¤âµP
-	vector<int> deck = { 1,1,1,1,1,1,1,1,1 };//µP®w
+	vector<int> hand = { 0,0,0,0,0,0,0,0,0 };//æ‰‹ç‰Œ
+	vector<int> deck = { 1,1,1,1,1,1,1,1,1 };//ç‰Œåº«
 	int speed[4] = { 0 };
 	int target[4] = { 0 };
 	string useCard[4];
@@ -31,54 +30,24 @@ public:
 	const int* getSpeedScope()const;
 	double getResistance(string)const;
 	double damageCalculation(string, int);
-	void cheakEmotionPoint();//§ó·s±¡·Pµ¥¯Åand¦^¥ú
-	void cheakState();//¦^©M¶}©l®É§ó·sª¬ºA
+	void cheakEmotionPoint();//æ›´æ–°æƒ…æ„Ÿç­‰ç´šandå›žå…‰
+	void cheakState();//å›žå’Œé–‹å§‹æ™‚æ›´æ–°ç‹€æ…‹
 	int randNum(int, int);
 	void action(Actor&);
 	int nameTransInt(string CardName);
-	void drawCards();//©â¥d¾÷¨î
-	bool clearCut(int);//ÀË¬dµP®w(1)or¤âµP(0)¬O§_²bªÅ
-	void autoAction(Actor&);//ÀH¾÷«ü©w¼Ä¤è¦æ°Ê¼Ñ(0¨ì3)
-	int autoPlayCard();//ÀH¾÷¥XµP(¶·²Å¦X¥ú¨~¤]´N¬O¶O¥Îªº¾÷¨î)
-	void setSpeed(int,int);//³]¸m¨C­Ó¦æ°Ê¼Ñªº³t«×­È
-	int getSpeed(int);//¦^¶Ç¨C­Ó¦æ°Ê¼Ñªº³t«×­È
-	void relight();//¦^¥ú
+	void drawCards();//æŠ½å¡æ©Ÿåˆ¶
+	bool clearCut(int);//æª¢æŸ¥ç‰Œåº«(1)oræ‰‹ç‰Œ(0)æ˜¯å¦æ·¨ç©º
+	void autoAction(Actor&);//éš¨æ©ŸæŒ‡å®šæ•µæ–¹è¡Œå‹•æ§½(0åˆ°3)
+	int autoPlayCard();//éš¨æ©Ÿå‡ºç‰Œ(é ˆç¬¦åˆå…‰èŠ’ä¹Ÿå°±æ˜¯è²»ç”¨çš„æ©Ÿåˆ¶)
+	void setSpeed(int,int);//è¨­ç½®æ¯å€‹è¡Œå‹•æ§½çš„é€Ÿåº¦å€¼
+	int getSpeed(int);//å›žå‚³æ¯å€‹è¡Œå‹•æ§½çš„é€Ÿåº¦å€¼
+	void relight();//å›žå…‰
 	int getTarget(int);
-	void setTarget(int, int);//§ïÅÜ¥Ø¼Ð(¦ì¸m¡A­È)
+	void setTarget(int, int);//æ”¹è®Šç›®æ¨™(ä½ç½®ï¼Œå€¼)
 	string getUseCard(int);
 	Card& getCard(int);
 	void costHp(double);
 	void catchEmotionalPoint(int, int, int);
 };
 #endif
-=======
-#ifndef ACTOR_H
-#define ACTOR_H
-#include"card.h"
-class Actor {
-private:
-	double hp;
-	int emotionalPoint=0;
-	int emotionalLeval=0;
-	double resistance[3];
-	int lightCount=4;
-	int moveCount=1;
-	int speedScope[2] = {0};
-	Card card[9];
-public:
-	Actor(double, double, double, double,int,int,Card card[]);
-	void printState();
-	void printCard(int,int);
-	int getEmotionalPoint()const;
-	int getEmotionalLeval()const;
-	int getHp()const;
-	int getLightCount()const;
-	int getMoveCount()const;
-	int getSpeedScope()const;
-	double getResistance(string)const;
-	int damageCalculation(string, int);
-	void cheakEmotionPoint();
-	void cheakState();
-};
-#endif
->>>>>>> 071d210843a89531f7dd01ac0ae4a246b4a36857
+
