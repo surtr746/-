@@ -3,11 +3,11 @@
 #include<iostream>
 #include<ctime>
 #include <iomanip>
-//é€£æ¥passè·Ÿå¡ç‰Œäº’å‹•++
+//³s±µpass¸ò¥dµP¤¬°Ê++
 using namespace std;
 void clashPoint(Actor&,Actor&);
 void inClash(Actor&, Actor& ,Card&,Card&);
-void oneSideAttack(Actor&, Actor&, Card&, int,vector<int> ,string);
+void oneSideAttack(Actor&, Actor&, Card&, int,string);
 int main() {
 	srand(time(0));
 	int light, typeCount,cardCeiling,cardFloor,touch;
@@ -37,7 +37,7 @@ int main() {
 	}
 	Actor player{ 100,0.5,1.0,2.0,1,6,playerCard };
 	Actor enemy{ 100,1.0,0.5,2.0,1,6,enemyCard };
-	int round = 0;//å›åˆè¨ˆæ•¸
+	int round = 0;//¦^¦X­p¼Æ
 	while (player.getHp() >= 0 && enemy.getHp() >= 0) {
 		cout << "round" << round << endl;
 		player.drawCards();
@@ -47,16 +47,27 @@ int main() {
 		cout << "enemy ";
 		enemy.printState();
 		//enemy.test();
-		cout << "enemy action:";
+		cout << "enemy action:" << endl;
 		enemy.autoAction(player);
 		player.action(enemy);
 		clashPoint(player,enemy);
 		round++;
 	}
+	cout << "¹CÀ¸µ²§ô¡I" << endl;
+	if (player.getHp() < 0 && enemy.getHp() < 0) {
+		cout << "Âù¤è¦P®É­Ë¤U¡A¥­¤â¡I" << endl;
+	}
+	else if (player.getHp() < 0) {
+		cout << "§A¿é¤F¡I" << endl;
+	}
+	else if (enemy.getHp() < 0) {
+		cout << "§AÄ¹¤F¡I" << endl;
+	}
+	cout << "yl3h0 t 2l41l3";
 }
 void clashPoint(Actor& player, Actor& enemy) {
 	cout << "----------------------------------------------------------------" << endl;
-	for (int i = 0; i < player.getMoveCount();i++) {//éšæ®µä¸€:æ”¹è®Šæ•µäººç›®æ¨™
+	for (int i = 0; i < player.getMoveCount();i++) {//¶¥¬q¤@:§ïÅÜ¼Ä¤H¥Ø¼Ğ
 		if (player.getSpeed(i) > enemy.getSpeed(player.getTarget(i))) {
 			//cout << enemy.getTarget(player.getTarget(i)) << "*****";
 			enemy.setTarget(player.getTarget(i),i);
@@ -72,11 +83,12 @@ void clashPoint(Actor& player, Actor& enemy) {
 	//	cout << enemy.getTarget(i) << "**";
 	//}
 	//cout << endl;
-	vector<int> sortInClash;//æ‹šé»é †åº
-	vector<int> sortOneSideAttack;
+	vector<int> sortInClash;//©éÂI¶¶§Ç
+	vector<int> sortOneSideAttack;//³æ¤è­±§ğÀ»¶¶§Ç
 	for (int i = 0; i < player.getMoveCount(); i++) {
 		if (i == enemy.getTarget(player.getTarget(i))) {
-			cout << player.getTarget(i) << "<->" << enemy.getTarget(player.getTarget(i)) << endl;
+			cout << i << "<->" << player.getTarget(i) << endl;//§Ú¤è²Äi¦æ°Ê¼Ñ©M¼Ä¤è²Ä?¦æ°Ê¼Ñ©éÂI
+			sortInClash.push_back(i);
 			sortInClash.push_back(player.getSpeed(i)+enemy.getSpeed(player.getTarget(i)));
 		}
 	}
@@ -104,22 +116,43 @@ void clashPoint(Actor& player, Actor& enemy) {
 	}
 	cout << '*';
 	cout << endl;
-	vector<int> sort = sortInClash;
-	for (int i = 0; i < sort.size(); i++) {
+	vector<int> sort = sortInClash;///©éÂI±Æ§Ç(¨â¤è³t«×©M¬Û¥[)³t«×°ªªº¥ı©éÂI
+	for (int i = 0; i < sort.size() / 2; i++) {
 		int minIndex = i;
-		for (int j = minIndex; j < sort.size();j++) {
-			if (sort[minIndex] < sort[j]) {
-				int temp = sort[minIndex];
-				sort[minIndex] = sort[j];
-				sort[j] = temp;
+		for (int j = minIndex; j < sort.size() / 2; j++) {
+			if (sort[minIndex * 2 + 1] < sort[j * 2 + 1]) {
+				int temp0 = sort[minIndex * 2];
+				int temp1 = sort[minIndex * 2 + 1];
+				sort[minIndex * 2] = sort[j * 2];
+				sort[minIndex * 2 + 1] = sort[j * 2 + 1];
+				sort[j * 2] = temp0;
+				sort[j * 2 + 1] = temp1;
 			}
 		}
 	}
-	//for (int i = 0; i < sort.size(); i++) {
-	//	cout << sort[i] << '/';
-	//}
-	//cout << '*';
-	//cout << endl;
+	for (int i = 0; i < sort.size(); i++) {
+		cout << sort[i] << '/';
+	}
+	cout << '*';
+	cout << endl;
+	for (int i = 0; i < sort.size() / 2; i++) {
+		int idx = sort[2 * i]; // ª½±µ¨ú¦æ°Ê¼Ñ½s¸¹
+		string p = player.getUseCard(idx);
+		string n = enemy.getUseCard(player.getTarget(idx));
+		if (p == "pass" && n != "pass") {
+			oneSideAttack(player, enemy, enemy.getCard(enemy.nameTransInt(n)), 0, "enemy");
+		}
+		else if (p != "pass" && n == "pass") {
+			oneSideAttack(player, enemy, player.getCard(player.nameTransInt(p)), 0, "player");
+		}
+		else if (p == "pass" && n == "pass") {
+			cout << "Âù¤è³£pass¡AµL¨Æµo¥Í" << endl;
+		}
+		else {
+			cout << p << "<->" << n << endl;
+			inClash(player, enemy, player.getCard(player.nameTransInt(p)), enemy.getCard(enemy.nameTransInt(n)));
+		}
+	}
 	sort = sortOneSideAttack;
 	for (int i = 0; i < sort.size()/2; i++) {
 		int minIndex = i;
@@ -134,16 +167,35 @@ void clashPoint(Actor& player, Actor& enemy) {
 			}
 		}
 	}
-	/*for (int i = 0; i < sort.size(); i++) {
+	for (int i = 0; i < sort.size(); i++) {
 		cout << sort[i] << '/';
 	}
 	cout << '*';
-	cout << endl;*/
+	cout << endl;
+	for (int i = 0; i < sort.size() / 2;i++) {
+		if (sort[2*i] < player.getMoveCount()) {
+			string p = player.getUseCard(sort[2*i]);
+			if (p != "pass") {
+				cout << p << endl;
+				oneSideAttack(player, enemy, player.getCard(player.nameTransInt(p)), 0, "player");
+			}
+			else
+				cout << "player passµL¨Æµo¥Í" << endl;
+		}
+		if (sort[2 * i] >= player.getMoveCount()) {
+			string p = enemy.getUseCard(sort[2 * i] - player.getMoveCount());
+			if (p != "pass") {
+				cout << p << endl;
+				oneSideAttack(player, enemy, enemy.getCard(enemy.nameTransInt(p)), 0, "enemy");
+			}
+			else
+				cout << "enemy passµL¨Æµo¥Í" << endl;
+		}
+	}
 }
 void inClash(Actor& player, Actor& enemy,Card& playerCard, Card& enemyCard) {
 	vector<int> playerList;
 	vector<int> enemyList;
-	cout << playerCard.getName() << "<->" << enemyCard.getName() << endl;
 	for (int i = 0; i < playerCard.getTypeCount();i++) {
 		int n = playerCard.randNum(playerCard.getScope(2 * i), playerCard.getScope(2 * i + 1));
 		playerList.push_back(n);
@@ -181,110 +233,147 @@ void inClash(Actor& player, Actor& enemy,Card& playerCard, Card& enemyCard) {
 	cout << endl;
 	for (int i = 0; i < playerList.size(); i++) {
 		if (playerList[i] == 0) {
-			oneSideAttack(player, enemy, enemyCard, i, enemyList, "enemy");
+			oneSideAttack(player, enemy, enemyCard, i, "enemy");
 			continue;
 		}
 		if (enemyList[i] == 0) {
-			oneSideAttack(player, enemy, playerCard, i, playerList, "player");
+			oneSideAttack(player, enemy, playerCard, i, "player");
 			continue;
 		}
 		cout << "player roll dice: " << playerCard.getType(i) << ' ' << playerList.at(i) << " enemy roll dice: " << enemyCard.getType(i) << ' ' << enemyList.at(i) << endl;
 		if (playerList[i] == enemyList[i]) {
-			cout << "é»æ•¸ç›¸ç­‰ï¼Œä»€éº¼éƒ½æ²’ç™¼ç”Ÿ" << endl;
+			cout << "ÂI¼Æ¬Ûµ¥¡A¤°»ò³£¨Sµo¥Í" << endl;
 			continue;
 		}
 		if (playerCard.getType(i) == "defense" && (enemyCard.getType(i) == "defense" || enemyCard.getType(i) == "dodge")) {
-			cout << "é›™æ–¹ä½¿ç”¨å®ˆå‚™ï¼Œä»€éº¼éƒ½æ²’ç™¼ç”Ÿ" << endl;
+			cout << "Âù¤è¨Ï¥Î¦u³Æ¡A¤°»ò³£¨Sµo¥Í" << endl;
 			continue;
 		}
 		if (playerCard.getType(i) == "dodge" && (enemyCard.getType(i) == "defense" || enemyCard.getType(i) == "dodge")) {
-			cout << "é›™æ–¹ä½¿ç”¨å®ˆå‚™ï¼Œä»€éº¼éƒ½æ²’ç™¼ç”Ÿ" << endl;
+			cout << "Âù¤è¨Ï¥Î¦u³Æ¡A¤°»ò³£¨Sµo¥Í" << endl;
 			continue;
 		}
 		if (playerCard.getType(i) == "defense" && (enemyCard.getType(i) == "slash" || enemyCard.getType(i) == "pierce" || enemyCard.getType(i) == "blunt")) {
 			if (playerList[i] < enemyList[i]) {
 				double num = player.damageCalculation(enemyCard.getType(i), enemyList[i] - playerList[i]);
-				cout << "enemyå°playeré€ æˆ" << num << "é»" << enemyCard.getType(i) << "æ¸›å…å‚·å®³" << endl;
+				cout << "enemy¹ïplayer³y¦¨" << num << "ÂI" << enemyCard.getType(i) << "´î§K¶Ë®`" << endl;
 				player.costHp(num);
 			}
 			if (playerList[i] > enemyList[i]) {
 				double num = 2.0 * (playerList[i] - enemyList[i]);
-				cout << "playerå°enemyé€ æˆ" << num << "é»" << "counterAttack" << "å‚·å®³" << endl;
+				cout << "player¹ïenemy³y¦¨" << num << "ÂI" << "counterAttack" << "¶Ë®`" << endl;
 				enemy.costHp(num);
 			}
 		}
 		if (playerCard.getType(i) == "dodge" && (enemyCard.getType(i) == "slash" || enemyCard.getType(i) == "pierce" || enemyCard.getType(i) == "blunt")) {
 			if (playerList[i] < enemyList[i]) {
 				double num = player.damageCalculation(enemyCard.getType(i), enemyList[i]);
-				cout << "enemyå°playeré€ æˆ" << num << "é»" << enemyCard.getType(i) << "å‚·å®³" << endl;
+				cout << "enemy¹ïplayer³y¦¨" << num << "ÂI" << enemyCard.getType(i) << "¶Ë®`" << endl;
 				player.costHp(num);
 			}
 			if (playerList[i] > enemyList[i]) {
 				double num = -2.0 * (playerList[i] - enemyList[i]);
-				cout << "playerå›å¾©" << num << "é»" << "è¡€é‡" << endl;
+				cout << "player¦^´_" << -num << "ÂI" << "¦å¶q" << endl;
 				player.costHp(num);
 			}
 		}
 		if ((playerCard.getType(i) == "slash" || playerCard.getType(i) == "pierce" || playerCard.getType(i) == "blunt") && (enemyCard.getType(i) == "slash" || enemyCard.getType(i) == "pierce" || enemyCard.getType(i) == "blunt")) {
 			if (playerList[i] > enemyList[i]) {
 				double num = enemy.damageCalculation(playerCard.getType(i), playerList[i]);
-				cout << "playerå°enemyé€ æˆ" << num << "é»" << playerCard.getType(i) << "å‚·å®³" << endl;
+				cout << "player¹ïenemy³y¦¨" << num << "ÂI" << playerCard.getType(i) << "¶Ë®`" << endl;
 				enemy.costHp(num);
 			}
 			if (playerList[i] < enemyList[i]) {
 				double num = player.damageCalculation(enemyCard.getType(i), enemyList[i]);
-				cout << "enemyå°playeré€ æˆ" << num << "é»" << enemyCard.getType(i) << "å‚·å®³" << endl;
+				cout << "enemy¹ïplayer³y¦¨" << num << "ÂI" << enemyCard.getType(i) << "¶Ë®`" << endl;
 				player.costHp(num);
 			}
 		}
 		if ((playerCard.getType(i) == "slash" || playerCard.getType(i) == "pierce" || playerCard.getType(i) == "blunt") && enemyCard.getType(i) == "defense") {
 			if (playerList[i] > enemyList[i]) {
 				double num = enemy.damageCalculation(playerCard.getType(i), playerList[i] - enemyList[i]);
-				cout << "playerå°enemyé€ æˆ" << num << "é»" << playerCard.getType(i) << "æ¸›å…å‚·å®³" << endl;
+				cout << "player¹ïenemy³y¦¨" << num << "ÂI" << playerCard.getType(i) << "´î§K¶Ë®`" << endl;
 				enemy.costHp(num);
 			}
 			if (playerList[i] < enemyList[i]) {
 				double num = 2.0 * (enemyList[i] - playerList[i]);
-				cout << "enemyå°playeré€ æˆ" << num << "é»" << "counterAttack" << "å‚·å®³" << endl;
+				cout << "enemy¹ïplayer³y¦¨" << num << "ÂI" << "counterAttack" << "¶Ë®`" << endl;
 				player.costHp(num);
 			}
 		}
 		if ((playerCard.getType(i) == "slash" || playerCard.getType(i) == "pierce" || playerCard.getType(i) == "blunt") && enemyCard.getType(i) == "dodge") {
 			if (playerList[i] > enemyList[i]) {
 				double num = enemy.damageCalculation(playerCard.getType(i), playerList[i]);
-				cout << "playerå°enemyé€ æˆ" << num << "é»" << playerCard.getType(i) << "å‚·å®³" << endl;
+				cout << "player¹ïenemy³y¦¨" << num << "ÂI" << playerCard.getType(i) << "¶Ë®`" << endl;
 				enemy.costHp(num);
 			}
 			if (playerList[i] < enemyList[i]) {
 				double num = -2.0 * (enemyList[i] - playerList[i]);
-				cout << "enemyå›å¾©" << num << "é»" << "è¡€é‡" << endl;
+				cout << "enemy¦^´_" << -num << "ÂI" << "¦å¶q" << endl;
 				enemy.costHp(num);
 			}
 		}
 	}
 }
-void oneSideAttack(Actor& player, Actor& enemy, Card& card, int i,vector<int> list,string user) {
-	for (; i < card.getTypeCount(); i++) {
+void oneSideAttack(Actor& player, Actor& enemy, Card& card, int i,string user) {
+	vector <int> list;
+	for (int j = 0; j < card.getTypeCount(); j++) {
+		int n = card.randNum(card.getScope(2 * j), card.getScope(2 * j + 1));
+		list.push_back(n);
+		if (i == 0) {//¥ÑinClash¶Ç¤J®É¤£¥iÃB¥~Àò±o±¡·PÂI¼Æ¡A¤£¹L¥dµPÂI¼Æ·|ÅÜ
+			if (user == "player")
+				player.catchEmotionalPoint(card.getScope(2 * j), card.getScope(2 * j + 1), n);
+			if (user == "enemy")
+				enemy.catchEmotionalPoint(card.getScope(2 * j), card.getScope(2 * j + 1), n);
+		}
+	}
+	if (i == 0 ) {
+		for (int k=i; k < card.getTypeCount();k++) {
+			if (user == "player") {
+				cout << "player roll dice: " << card.getType(k) << ' ' << list.at(k) << " enemy roll dice: " << "ªÅÃş«¬ " << "0" << endl;
+				if (card.getType(k) == "slash" || card.getType(k) == "pierce" || card.getType(k) == "blunt") {
+					double num = enemy.damageCalculation(card.getType(i), list[k]);
+					cout << "player" << "¹ï" << "enemy" << "³æ¤è­±¨Ï¥Î" << card.getType(k) << "³y¦¨" << num << "ÂI¶Ë®`" << endl;
+					enemy.costHp(num);
+				}
+				if (card.getType(k) == "defense" || card.getType(k) == "dodge") {
+					cout << "player³æ¤è­±¨Ï¥Î" << card.getType(k) << "¨S¦³§@¥Î" << endl;
+				}
+			}
+			if (user == "enemy") {
+				cout << "player roll dice: " << "ªÅÃş«¬ " << "0" << " enemy roll dice: " << card.getType(k) << ' ' << list.at(k) << endl;
+				if (card.getType(k) == "slash" || card.getType(k) == "pierce" || card.getType(k) == "blunt") {
+					double num = player.damageCalculation(card.getType(k), list[k]);
+					cout << "enemy" << "¹ï" << "player" << "³æ¤è­±¨Ï¥Î" << card.getType(k) << "³y¦¨" << num << "ÂI¶Ë®`" << endl;
+					player.costHp(num);
+				}
+				if (card.getType(k) == "defense" || card.getType(k) == "dodge") {
+					cout << "enemy³æ¤è­±¨Ï¥Î" << card.getType(k) << "¨S¦³§@¥Î" << endl;
+				}
+			}
+		}
+	}
+	else if ( i < card.getTypeCount() ) {
 		if ( user == "player") {
-			cout << "player roll dice: " << card.getType(i) << ' ' << list.at(i) << " enemy roll dice: " << "ç©ºé¡å‹ " << "0" << endl;
+			cout << "player roll dice: " << card.getType(i) << ' ' << list.at(i) << " enemy roll dice: " << "ªÅÃş«¬ " << "0" << endl;
 			if (card.getType(i) == "slash" || card.getType(i) == "pierce" || card.getType(i) == "blunt") {
 				double num= enemy.damageCalculation(card.getType(i), list[i]);
-				cout << "player" << "å°" << "enemy" << "å–®æ–¹é¢ä½¿ç”¨" << card.getType(i) << "é€ æˆ" << num << "é»å‚·å®³" << endl;
+				cout << "player" << "¹ï" << "enemy" << "³æ¤è­±¨Ï¥Î" << card.getType(i) << "³y¦¨" << num << "ÂI¶Ë®`" << endl;
 				enemy.costHp(num);
 			}
 			if (card.getType(i)=="defense" || card.getType(i) == "dodge") {
-				cout << "playerå–®æ–¹é¢ä½¿ç”¨" << card.getType(i) << "æ²’æœ‰ä½œç”¨" << endl;
+				cout << "player³æ¤è­±¨Ï¥Î" << card.getType(i) << "¨S¦³§@¥Î" << endl;
 			}
 		}
 		if (user == "enemy") {
-			cout << "player roll dice: " << "ç©ºé¡å‹ " << "0" << " enemy roll dice: " << card.getType(i) << ' ' << list.at(i) << endl;
+			cout << "player roll dice: " << "ªÅÃş«¬ " << "0" << " enemy roll dice: " << card.getType(i) << ' ' << list.at(i) << endl;
 			if (card.getType(i) == "slash" || card.getType(i) == "pierce" || card.getType(i) == "blunt") {
 				double num = player.damageCalculation(card.getType(i), list[i]);
-				cout << "enemy" << "å°" << "player" << "å–®æ–¹é¢ä½¿ç”¨" << card.getType(i) << "é€ æˆ" << num << "é»å‚·å®³" << endl;
+				cout << "enemy" << "¹ï" << "player" << "³æ¤è­±¨Ï¥Î" << card.getType(i) << "³y¦¨" << num << "ÂI¶Ë®`" << endl;
 				player.costHp(num);
 			}
 			if (card.getType(i) == "defense" || card.getType(i) == "dodge") {
-				cout << "enemyå–®æ–¹é¢ä½¿ç”¨" << card.getType(i) << "æ²’æœ‰ä½œç”¨" << endl;
+				cout << "enemy³æ¤è­±¨Ï¥Î" << card.getType(i) << "¨S¦³§@¥Î" << endl;
 			}
 		}
 	}

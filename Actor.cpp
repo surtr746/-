@@ -15,14 +15,16 @@ Actor::Actor(double newHp, double slash, double pierce, double blunt,int speedFl
 }
 void Actor::printState() {
 	cheakEmotionPoint();
-	relight();
 	cheakState();
+	cheakEmotionPoint();
+	relight();
 	cout << "HP:" << setw(4) << getHp() << ' '
-		<< "emotionalLeval:" << setw(4) << getEmotionalLeval() << ' '
+		<< "emotionalLeval:" << setw(4) << getEmotionalLeval() << ' ' << setw(4) << getEmotionalPoint() << ' '
 		<< "resistance:" << setw(4) << getResistance("slash") << setw(4) << getResistance("pierce") << setw(4) << getResistance("blunt") << ' '
 		<< "lightCount:" << setw(4) << getLightCount(0) << ' ' << setw(4) << getLightCount(1) << ' '
 		<< "moveCount:" << setw(4) << getMoveCount() << ' '
-		<< "speedScope:" << setw(4) << getSpeedScope()[0] << setw(4) << getSpeedScope()[1]<< endl;
+		<< "speedScope:" << setw(4) << getSpeedScope()[0] << setw(4) << getSpeedScope()[1] << endl;
+	printRelightAndNextEmotionalLeval();
 	for (int i = 0; i < getMoveCount();i++) {
 		cout << "*******" << '|';
 	}
@@ -103,25 +105,25 @@ void  Actor::cheakState() {
 		moveCount = 1;
 	}
 	if (num == 1) {
-		lightCount[0] = 5;
+		lightCount[0] = 4;
 		moveCount = 1;
 	}
 	if (num == 2) {
-		lightCount[0] = 6;
+		lightCount[0] = 5;
 		moveCount = 2;
 	}
 	if (num == 3) {
-		lightCount[0] = 7;
+		lightCount[0] = 6;
 		moveCount = 2;
 		speedScope[0] = 2;
 		speedScope[1] = 7;
 	}
 	if (num == 4) {
-		lightCount[0] = 8;
+		lightCount[0] = 7;
 		moveCount = 3;
 	}
 	if (num == 5) {
-		lightCount[0] = 10;
+		lightCount[0] = 9;
 		moveCount = 4;
 		speedScope[0] = 3;
 		speedScope[1] = 8;
@@ -129,30 +131,28 @@ void  Actor::cheakState() {
 }
 void Actor::cheakEmotionPoint() {
 	int num= emotionalPoint;
+	int oldLeval = emotionalLeval;
+	if (num == 0) {
+		emotionalLeval = 0;
+	}
 	if (num > 0 && num <= 3) {
-		if (getEmotionalLeval() == 0)
-			lightCount[1] = 5;
 		emotionalLeval = 1;
 	}
 	if (num >= 4 && num <= 8) {
-		if (getEmotionalLeval() <= 1)
-			lightCount[1] = 6;
 		emotionalLeval = 2;
 	}
 	if (num >= 9 && num <= 15) {
-		if (getEmotionalLeval() <= 2)
-			lightCount[1] = 7;
 		emotionalLeval = 3;
 	}
 	if (num >= 16 && num <= 24) {
-		if (getEmotionalLeval() <= 3)
-			lightCount[1] = 8;
 		emotionalLeval = 4;
 	}
 	if (num >= 25 && num <= 30) {
-		if (getEmotionalLeval() <= 4)
-			lightCount[1] = 10;
 		emotionalLeval = 5;
+	}
+	if (emotionalLeval > oldLeval) {
+		cheakState();
+		lightCount[1] = lightCount[0]; // 升級時補滿
 	}
 }
 int Actor::randNum(int floor, int ceiling) {
@@ -161,7 +161,18 @@ int Actor::randNum(int floor, int ceiling) {
 	return num + floor;
 }
 void Actor::drawCards() {
+	//cout << "hand	";
+	//for (int i = 0; i < 9;i++) {
+	//	cout << hand[i] << "+";
+	//}
+	//cout << endl;
+	//cout << "deck	";
+	//for (int i = 0; i < 9; i++) {
+	//	cout << deck[i] << "+";
+	//}
+	//cout << endl;
 	if (clearCut(0)) {//沒牌時抽五張
+		cout << "沒手牌抽五張" << endl;
 		for (int i = 0; i < 5;) {
 			int number = randNum(0,8);
 			if (deck[number]==1) {
@@ -169,10 +180,20 @@ void Actor::drawCards() {
 				hand[number] = 1;
 				i++;
 			}
+			if (clearCut(1)) {
+				int j = 5 - i;
+				for (; j > 0;) {
+					int num = randNum(0, 8);
+					if (deck[num] == 0) {
+						deck[num] = 1;
+						j--;
+					}
+				}
+			}
 		}
-		cout << "沒手牌抽五張" << endl;
 	}
 	else if (clearCut(1)) { //特殊抽牌:從手牌上棄牌六張
+		cout << "牌庫沒牌抽，從手牌和使用過的牌中棄六張回牌庫" << endl;
 		for (int i = 0; i < 6;) {
 			int number = randNum(0, 8);
 			if (deck[number] == 0 ) {
@@ -180,12 +201,16 @@ void Actor::drawCards() {
 				hand[number] = 0;
 				i++;
 			}
+			if (clearCut(3)) 
+				break;
 			if (clearCut(0))//手牌都棄掉了
 				break;
+			if (!canDiscard()) 
+				break;
 		}
-		cout << "牌庫沒牌抽，從手牌和使用過的牌中棄六張回牌庫" << endl;
 	}
 	else if (emotionalLeval == 5) {//情感等級五，抽三張
+		cout << "情感等級五，抽三張" << endl;
 		for (int i = 0; i < 3;) {
 			int number = randNum(0, 8);
 			if (deck[number] == 1) {
@@ -195,10 +220,12 @@ void Actor::drawCards() {
 			}
 			if (clearCut(1))
 				break;
+			if (clearCut(2))
+				break;
 		}
-		cout << "情感等級五，抽三張" << endl;
 	}
-	else 
+	else {
+		cout << "情感等級小於五，抽兩張" << endl;
 		for (int i = 0; i < 2;) {//情感等級在五以下抽兩張
 			int number = randNum(0, 8);
 			if (deck[number] == 1) {
@@ -208,8 +235,20 @@ void Actor::drawCards() {
 			}
 			if (clearCut(1))
 				break;
+			if (clearCut(2))
+				break;
 		}
-	
+	}
+	//cout << "hand	";
+	//for (int i = 0; i < 9; i++) {
+	//	cout << hand[i] << "-";
+	//}
+	//cout << endl;
+	//cout << "deck	";
+	//for (int i = 0; i < 9; i++) {
+	//	cout << deck[i] << "-";
+	//}
+	//cout << endl;
 }
 bool Actor::clearCut(int i) { 
 	if (i == 1) {//牌庫都被抽完了
@@ -222,6 +261,20 @@ bool Actor::clearCut(int i) {
 	if (i == 0) {//手牌都被抽完了
 		for (int i = 0; i < 9; i++) {
 			if (hand[i] == 1)
+				return false;
+		}
+		return true;
+	}
+	if(i == 2) {//手牌都滿了
+		for (int i = 0; i < 9; i++) {
+			if (hand[i] == 0)
+				return false;
+		}
+		return true;
+	}
+	if(i == 3) {//牌庫都滿了
+		for (int i = 0; i < 9; i++) {
+			if (deck[i] == 0)
 				return false;
 		}
 		return true;
@@ -256,6 +309,13 @@ int Actor::autoPlayCard() { //隨機出牌
 void Actor::setSpeed(int count,int num) {
 	speed[count] = num;
 }
+bool Actor::canDiscard() {
+	for (int i = 0; i < 9; i++) {
+		if (deck[i] == 0 && hand[i] == 1)
+			return true;
+	}
+	return false;
+}
 int Actor::getSpeed(int count) {
 	return speed[count];
 }
@@ -283,64 +343,66 @@ void Actor::relight() {
 		if (getLightCount(1) > 7)
 			lightCount[1] = 7;
 	}
-	if (getLightCount(0) == 8) {
+	if (getLightCount(0) == 9) {
 		lightCount[1] += 3;
-		if (getLightCount(1) > 8)
-			lightCount[1] = 8;
-	}
-	if (getLightCount(0) == 10) {
-		lightCount[1] += 3;
-		if (getLightCount(1) > 10)
-			lightCount[1] = 10;
+		if (getLightCount(1) > 9)
+			lightCount[1] = 9;
 	}
 }
 void Actor::action(Actor& other) {
 	int tar;
 	string useC;
 	for (int i = 0; i < getMoveCount();) {
-		cout << "第" << i << "行動槽的目標是?" << endl;
+		cout << "第" << i << "行動槽的目標是?" << "(請輸入數字)" << endl;
  		cin >> tar;
-		if (tar > other.getMoveCount() || tar < 0) {
-			cout << "Invalid target. Please re-enter." << endl;
+		if (tar >= other.getMoveCount() || tar < 0) {
+			cout << "輸入位置錯誤，請重新輸入" << endl;
 			continue;
 		}
 		target[i] = tar;
-		cout << "第" << i << "行動槽要使用的卡牌是?" << endl;
-		cin >> useC;
-		if (useC == "pass") {
-			useCard[i] = "pass";
-			i++;
-			continue;
+		i++;
+		for (int j = i-1; j < getMoveCount();) {
+			cout << "第" << j << "行動槽要使用的卡牌是?" << "(請輸入卡牌名稱或pass)" << endl;
+			cin >> useC;
+			if (cin.fail()) {//發現錯誤就清除狀態並丟棄緩衝區內容
+				cin.clear();
+				cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+				cout << "輸入錯誤，請重新輸入" << endl;
+				continue;
+			}
+			if (useC == "pass") {
+				useCard[j] = "pass";
+				break;
+			}
+			int cardIndex = nameTransInt(useC);
+			if (cardIndex == 9) {
+				cout << "卡牌名稱錯誤，請重新輸入" << endl;
+				continue;
+			}
+			else if (hand[cardIndex] != 1) {
+				cout << "手牌沒有抽到這張牌，請重新輸入" << endl;
+				continue;
+			}
+			else if (card[cardIndex].getLight() > lightCount[1]) {
+				cout << "光芒不足，無法使用這張牌，請重新輸入" << endl;
+				continue;
+			}
+			else {
+				useCard[j] = useC;
+				lightCount[1] -= card[cardIndex].getLight();
+				hand[cardIndex] = 0;
+				break;
+			}
 		}
-		int cardIndex = nameTransInt(useC);
-		if (cardIndex == 9) {
-			cout << "卡牌名稱錯誤，請重新輸入" << endl;
-			continue;
-		}
-		else if (hand[cardIndex] != 1) {
-			cout << "手牌沒有抽到這張牌，請重新輸入" << endl;
-			continue;
-		}
-		else if (card[cardIndex].getLight() > lightCount[1]) {
-			cout << "光芒不足，無法使用這張牌，請重新輸入" << endl;
-			continue;
-		}
-		else {
-			useCard[i] = useC;
-			lightCount[1] -= card[cardIndex].getLight();
-			hand[cardIndex] = 0;
-			i++;
-		}
-		for (int i = 0; i < getMoveCount(); i++) {
-			cout << i << '(' << speed[i] << ')' << "-->" << target[i] << '(' << other.getSpeed(target[i]) << ')' << endl;
-			if (useCard[i] != "pass")
-				printCard(nameTransInt(useCard[i]), 0);
-			else
-				cout << "pass" << endl;
-		}
-
 	}
-
+	
+	for (int i = 0; i < getMoveCount(); i++) {
+		cout << i << '(' << speed[i] << ')' << "-->" << target[i] << '(' << other.getSpeed(target[i]) << ')' << endl;
+		if (useCard[i] != "pass")
+			printCard(nameTransInt(useCard[i]), 0);
+		else
+			cout << "pass" << endl;
+	}
 }
 int Actor::nameTransInt(string CardName) {
 	for (int i = 0; i < 9; i++) {
@@ -364,7 +426,44 @@ void Actor::costHp(double num){
 }
 void Actor::catchEmotionalPoint(int floor,int ceiling,int point) {
 	if (point == floor)
-		emotionalPoint += 2;
+		emotionalPoint += 1;
 	if (point == ceiling)
 		emotionalPoint += 1;
+}
+void Actor::printRelightAndNextEmotionalLeval() {
+	cout << "當前回合";
+	if (getLightCount(0) == 4) {
+		cout << "回" << 1 << "光 ";
+	}
+	if (getLightCount(0) == 5) {
+		cout << "回" << 1 << "光 ";
+	}
+	if (getLightCount(0) == 6) {
+		cout << "回" << 2 << "光 ";
+	}
+	if (getLightCount(0) == 7) {
+		cout << "回" << 2 << "光 ";
+	}
+	if (getLightCount(0) == 9) {
+		cout << "回" << 3 << "光 ";
+	}
+	if (emotionalLeval == 0) {
+		cout << "還差" << setw(4) << 1 - getEmotionalPoint() << "  點到達I情感階段" << endl;
+	}
+	if (emotionalLeval == 1) {
+		cout << "還差" << setw(4) << 4 - getEmotionalPoint() << "點到達II情感階段" << endl;
+	}
+	if (emotionalLeval == 2) {
+		cout << "還差" << setw(4) << 9 - getEmotionalPoint() << "點到達III情感階段" << endl;
+	}
+	if (emotionalLeval == 3) {
+		cout << "還差" << setw(4) << 16 - getEmotionalPoint() << "點到達IV情感階段" << endl;
+	}
+	if (emotionalLeval == 4) {
+		cout << "還差" << setw(4) << 25 - getEmotionalPoint() << "點到達V情感階段" << endl;
+	}
+	if (emotionalLeval == 5) {
+		cout << "到達V情感階段，會贏嗎?" << endl;
+	}
+
 }

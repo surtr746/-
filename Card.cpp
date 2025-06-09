@@ -86,4 +86,3 @@ string Card::getName() {
 string Card::getType(int i) {
 	return type[i];
 }
-

@@ -26,4 +26,3 @@ public:
 	string getType(int i);
 };
 #endif
-
